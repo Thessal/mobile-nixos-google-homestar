@@ -8,6 +8,7 @@ It works
 === Building image
 
 ---
+# Before build, review devices/lenovo-homestar/default.nix
 nix-build --argstr device lenovo-homestar -A outputs.default
 cp /nix/store/(hash)/mobile-nixos-lenovo-homestar.img  /dev/sdX
 sync
@@ -45,7 +46,49 @@ sudo fdisk /dev/mmcblk1
 # e 2 : extend second partition
 ---
 
-reboot and nixos-generate-config
+Using mobile-nixos configuration in your system configuration
+---
+mkdir /mnt
+mount /dev/mmcblk1p2 /mnt
+cd /mnt
+git clone http://github.com/Thessal/mobile-nixos-google-homestar
+mv mobile-nixos-google-homestar mobile-nixos
+---
+
+Modify /mnt/etc/nixos/configuration.nix
+---
+{
+  #...
+  boot.loader.grub.enable = false;
+  boot.loader.generic-extlinux-compatible.enable = false;
+
+  imports = [
+    (import /mobile-nixos/lib/configuration.nix { device = "google-homestar"; })
+    # /mobile-nixos/devices/families/mainline-chromeos-sc7180/firmware/non-redistributable.nix
+    # ...
+  ];
+
+  environment.systemPackages = with pkgs; [
+    vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    git
+    wget
+  ];
+  networking.networkmanager.enable = false;
+  networking.wireless.enable = true; # to use wpa_supplicant
+
+  # # sc7180
+  # nixpkgs.config.allowUnfree = true;
+  # hardware.firmware = [ 
+  #   pkgs.chromeos-sc7180-unredistributable-firmware
+  # ];
+ 
+  #...
+}
+---
+
+nixos-rebuild switch
+
+reboot
 
 === Wi-Fi support
 

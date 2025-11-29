@@ -19,6 +19,21 @@
     };
   };
 
+  environment.systemPackages = with pkgs; [
+    vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    git
+    wget
+  ];
+  networking.networkmanager.enable = false;
+  networking.wireless.enable = true; # to use wpa_supplicant
+
+  # # sc7180
+  # nixpkgs.config.allowUnfree = true;
+  # hardware.firmware = [ 
+  #   pkgs.chromeos-sc7180-unredistributable-firmware
+  # ];
+
+
   # Ensure orientation match with keyboard.
   services.udev.extraHwdb = lib.mkBefore ''
     sensor:accel-display:modalias:platform:cros-ec-accel:*
